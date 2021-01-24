@@ -64,9 +64,10 @@ const viewEmployee = () => {
     select emp.id, emp.first_name, emp.last_name, 
     role.title, role.salary,department.name as department, 
     concat(manager.first_name," ", manager.last_name) as manager
-    from employee as emp left join employee as manager on  emp.id = manager.manager_id
+    from employee as emp left join employee as manager on  emp.manager_id = manager.id
     inner join role on emp.role_id = role.id 
-    inner join department on role.department_id = department.id`,
+    inner join department on role.department_id = department.id
+    order by emp.id`,
         (err, results) => {
             console.table(results);
             whatToDo();
@@ -94,7 +95,7 @@ function addEmployee() {
         connection.query("select * from employee", (err, employees) => {
 
             const rolesArray = roles.map(role => {
-                return { name: `${role.title}`, id: `${role.id}` }
+                return { name: `${role.title}`, value: `${role.id}` }
             });
             console.log(rolesArray);
             const employee = employees.map(e => {
@@ -130,18 +131,26 @@ function addEmployee() {
 
                 ]).then(({ firstName, lastName, role, manager }) => {
                     let managerId;
+
                     employee.forEach(e => {
                         if (e.name === manager) {
                             console.log(e.id)
                             managerId = e.id;
                         }
                     });
+                    console.log(role);
+                    console.log(`${firstName}, ${lastName}, ${role}, ${managerId}`);
+
                     connection.query(`
                     insert into employee (first_name, last_name, role_id, manager_id)
-values
-("John", "Doe", 1, null),
-                    `)
-                })
+                    values
+                    (?,?,?,?)`, [firstName, lastName, role, managerId]);
+
+                    console.log("New employee added");
+                    whatToDo();
+                });
+
+
         })
 
     });
