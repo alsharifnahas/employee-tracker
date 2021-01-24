@@ -14,18 +14,19 @@ create table role (
 id integer auto_increment not null,
 title varchar(30) not null,
 salary decimal(10,4) not null,
-department_id integer(10) not null,
+department_id integer(10) null,
 primary key(id),
-foreign key(department_id) references department(id)
+foreign key(department_id) references department(id) on delete set null
 );
 
 create table employee(
 id integer(10) auto_increment not null,
 first_name varchar(30) not null,
 last_name varchar(30) not null,
-role_id integer(10) not null,
-manager_id integer(10) not null,
+role_id integer(10) null,
+manager_id integer(10) null,
 primary key (id),
-foreign key(role_id) references role(id),
-foreign key(manager_id) references employee(id)
+foreign key(role_id) references role(id) on delete set null,
+foreign key(manager_id) references employee(id) on delete set null
 );
+

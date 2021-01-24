@@ -43,6 +43,9 @@ const whatToDo = () => {
             case "View All Employees":
                 viewEmployee();
                 break;
+            case "Add Employee":
+                addEmployee();
+                break;
             case "View Departments":
                 viewDepartment();
                 break;
@@ -79,7 +82,70 @@ const viewRoles = () => {
 }
 const viewDepartment = () => {
     connection.query("select name as department from department", (err, results) => {
+        console.log(results)
         console.table(results);
         whatToDo();
     })
+}
+
+function addEmployee() {
+    connection.query("select * from role", (err, roles) => {
+
+        connection.query("select * from employee", (err, employees) => {
+
+            const rolesArray = roles.map(role => {
+                return { name: `${role.title}`, id: `${role.id}` }
+            });
+            console.log(rolesArray);
+            const employee = employees.map(e => {
+                return { name: `${e.first_name} ${e.last_name}`, id: `${e.id}` }
+            });
+
+
+            inquirer.
+                prompt([
+                    {
+                        type: "input",
+                        message: "What is the employee's first name?",
+                        name: "firstName",
+                    },
+                    {
+                        type: "input",
+                        message: "What is the employee's last name?",
+                        name: "lastName",
+                    },
+                    {
+                        type: "list",
+                        message: "Please select the employee's role",
+                        choices: rolesArray,
+                        name: "role",
+                    },
+                    {
+                        type: "list",
+                        message: "Please select the employee's manager",
+                        choices: employee,
+                        name: "manager",
+                    },
+
+
+                ]).then(({ firstName, lastName, role, manager }) => {
+                    let managerId;
+                    employee.forEach(e => {
+                        if (e.name === manager) {
+                            console.log(e.id)
+                            managerId = e.id;
+                        }
+                    });
+                    connection.query(`
+                    insert into employee (first_name, last_name, role_id, manager_id)
+values
+("John", "Doe", 1, null),
+                    `)
+                })
+        })
+
+    });
+
+
+
 }
